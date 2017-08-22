@@ -4,11 +4,6 @@ PATH
     batch_api (0.3.0)
       middleware
 
-PATH
-  remote: /Users/shreyas/Freshdesk/helpkit/vendor/gems/liquid
-  specs:
-    liquid (2.4.1)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -81,6 +76,7 @@ GEM
     jdbc-sqlite3 (3.8.7)
     json (1.8.2)
     json (1.8.2-java)
+    liquid (4.0.0)
     listen (0.5.3)
     loofah (2.0.1)
       nokogiri (>= 1.5.9)
@@ -198,7 +194,7 @@ DEPENDENCIES
   guard
   guard-rspec
   jdbc-sqlite3
-  liquid!
+  liquid
   pry
   rack-contrib
   rails (~> 4.2)
