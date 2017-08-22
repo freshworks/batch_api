@@ -10,7 +10,7 @@ module BatchApi
       # Public: create a new Batch Operation given the specifications for a batch
       # operation (as defined above) and the request environment for the main
       # batch request.
-      def initialize(op, base_env, app, index)
+      def initialize(op, base_env, app, index = 0)
         @op = op
 
         @method = op["method"] || "get"

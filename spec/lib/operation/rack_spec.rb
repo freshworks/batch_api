@@ -45,6 +45,11 @@ describe BatchApi::Operation::Rack do
       expect(op.method).to eq("get")
     end
 
+    it "defaults index to 0 if not provided" do
+      op = BatchApi::Operation::Rack.new(op_params.except("method"), env, app)
+      expect(op.method).to eq("get")
+    end
+
     it "defaults params to {} if not provided" do
       op = BatchApi::Operation::Rack.new(op_params.except("params"), env, app, 0)
       expect(op.params).to eq({})
