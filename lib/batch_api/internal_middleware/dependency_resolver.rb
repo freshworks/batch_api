@@ -12,9 +12,10 @@ module BatchApi
       def call(env)
         op = env[:op]
         if op.depends_on.any?
-          msg, err = resolve_dependencies(op, env[:results])
-          if err
-            return BatchApi::Response.new([422, {"Content-Type" => "application/json"}, [{ "error" => msg }.to_json]])
+          begin
+            resolve_dependencies(op, env[:results])
+          rescue BatchApi::Errors::DependencyError => e
+            return BatchApi::Response.new([e.status_code, {"Content-Type" => "application/json"}, [{ "error" => e.message }.to_json]])
           end
         end
         @app.call(env)
@@ -24,14 +25,14 @@ module BatchApi
 
       def resolve_dependencies(op, json_results)
         if op.depends_on.detect { |d_on| json_results[d_on][:errors] }
-          return ["One of dependent requests failed", true]
+          raise BatchApi::Errors::DependencyRequestFailedError
         end
         begin
           op.url = Liquid::Template.parse(op.url).render!('data' => json_results)
           op.params = JSON.parse(Liquid::Template.parse(op.params.to_json).render!('data' => json_results))
           op.headers = JSON.parse(Liquid::Template.parse(op.headers.to_json).render!('data' => json_results))
         rescue Exception => e 
-          ["Please check your placeholders", true]
+          raise BatchApi::Errors::DependencyPlaceholderError
         end
       end
     end

@@ -11,7 +11,7 @@ describe BatchApi::Operation::Rack do
   } }
 
   # for env, see bottom of file - it's long
-  let(:operation) { BatchApi::Operation::Rack.new(op_params, env, app, 0) }
+  let(:operation) { BatchApi::Operation::Rack.new(op_params, env, app) }
   let(:app) { double("application", call: [200, {}, ["foo"]]) }
 
   describe "accessors" do
@@ -41,7 +41,7 @@ describe BatchApi::Operation::Rack do
     end
 
     it "defaults method to get if not provided" do
-      op = BatchApi::Operation::Rack.new(op_params.except("method"), env, app, 0)
+      op = BatchApi::Operation::Rack.new(op_params.except("method"), env, app)
       expect(op.method).to eq("get")
     end
 
@@ -51,12 +51,12 @@ describe BatchApi::Operation::Rack do
     end
 
     it "defaults params to {} if not provided" do
-      op = BatchApi::Operation::Rack.new(op_params.except("params"), env, app, 0)
+      op = BatchApi::Operation::Rack.new(op_params.except("params"), env, app)
       expect(op.params).to eq({})
     end
 
     it "defaults headers to {} if not provided" do
-      op = BatchApi::Operation::Rack.new(op_params.except("headers"), env, app, 0)
+      op = BatchApi::Operation::Rack.new(op_params.except("headers"), env, app)
       expect(op.headers).to eq({})
     end
 
@@ -76,35 +76,35 @@ describe BatchApi::Operation::Rack do
     it "raises a MalformedOperationError if URL is missing" do
       no_url = op_params.dup.tap {|o| o.delete("url") }
       expect {
-        BatchApi::Operation::Rack.new(no_url, env, app, 0)
+        BatchApi::Operation::Rack.new(no_url, env, app)
       }.to raise_exception(BatchApi::Errors::MalformedOperationError)
     end
 
     it "raises a MalformedOperationError if depends_on is not an array" do
       d_op = op_params.dup.tap {|o| o["depends_on"] = "asdad"}
       expect {
-        BatchApi::Operation::Rack.new(d_op, env, app, 0)
+        BatchApi::Operation::Rack.new(d_op, env, app)
       }.to raise_exception(BatchApi::Errors::MalformedOperationError)
     end
 
     it "raises a MalformedOperationError if depends_on has elements which are not integers" do
       d_op = op_params.dup.tap {|o| o["depends_on"] = ["asdad"] }
       expect {
-        BatchApi::Operation::Rack.new(d_op, env, app, 0)
+        BatchApi::Operation::Rack.new(d_op, env, app)
       }.to raise_exception(BatchApi::Errors::MalformedOperationError)
     end
 
     it "raises a MalformedOperationError if depends_on has elements which depend on future requests" do
       d_op = op_params.dup.tap {|o| o["depends_on"] = [1] }
       expect {
-        BatchApi::Operation::Rack.new(d_op, env, app, 0)
+        BatchApi::Operation::Rack.new(d_op, env, app)
       }.to raise_exception(BatchApi::Errors::MalformedOperationError)
     end
 
     it "raises a MalformedOperationError if depends_on has elements which depend on current" do
       d_op = op_params.dup.tap {|o| o["depends_on"] = [0] }
       expect {
-        BatchApi::Operation::Rack.new(d_op, env, app, 0)
+        BatchApi::Operation::Rack.new(d_op, env, app)
       }.to raise_exception(BatchApi::Errors::MalformedOperationError)
     end
 

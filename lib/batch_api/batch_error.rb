@@ -37,5 +37,20 @@ module BatchApi
       # Public: the status code for this error.
       def status_code; 422; end
     end
+
+    class DependencyError <ArgumentError
+      def status_code; 422; end
+    end
+    class DependencyPlaceholderError < DependencyError
+      def initialize
+        super("Please check your placeholders")
+      end
+    end
+
+    class DependencyRequestFailedError < DependencyError
+      def initialize
+        super("One of dependent requests failed")
+      end
+    end
   end
 end
