@@ -3,6 +3,7 @@ require 'batch_api/processor/sequential'
 require 'batch_api/processor/executor'
 require 'batch_api/internal_middleware/decode_json_body'
 require 'batch_api/internal_middleware/response_filter'
+require 'batch_api/internal_middleware/dependency_resolver'
 
 module BatchApi
   # Public: the internal middleware system used to process batch requests.

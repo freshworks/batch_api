@@ -81,8 +81,8 @@ module BatchApi
           "Only #{BatchApi.config.limit} operations can be submitted at once, " +
           "#{ops.length} were provided"
       else
-        ops.map do |op|
-          self.class.operation_klass.new(op, @env, @app)
+        ops.each_with_index.map do |op, i|
+          self.class.operation_klass.new(op, @env, @app, i)
         end
       end
     end

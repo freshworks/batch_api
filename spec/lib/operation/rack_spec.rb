@@ -45,6 +45,11 @@ describe BatchApi::Operation::Rack do
       expect(op.method).to eq("get")
     end
 
+    it "defaults index to 0 if not provided" do
+      op = BatchApi::Operation::Rack.new(op_params.except("method"), env, app)
+      expect(op.method).to eq("get")
+    end
+
     it "defaults params to {} if not provided" do
       op = BatchApi::Operation::Rack.new(op_params.except("params"), env, app)
       expect(op.params).to eq({})
@@ -73,6 +78,40 @@ describe BatchApi::Operation::Rack do
       expect {
         BatchApi::Operation::Rack.new(no_url, env, app)
       }.to raise_exception(BatchApi::Errors::MalformedOperationError)
+    end
+
+    it "raises a MalformedOperationError if depends_on is not an array" do
+      d_op = op_params.dup.tap {|o| o["depends_on"] = "asdad"}
+      expect {
+        BatchApi::Operation::Rack.new(d_op, env, app)
+      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
+    end
+
+    it "raises a MalformedOperationError if depends_on has elements which are not integers" do
+      d_op = op_params.dup.tap {|o| o["depends_on"] = ["asdad"] }
+      expect {
+        BatchApi::Operation::Rack.new(d_op, env, app)
+      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
+    end
+
+    it "raises a MalformedOperationError if depends_on has elements which depend on future requests" do
+      d_op = op_params.dup.tap {|o| o["depends_on"] = [1] }
+      expect {
+        BatchApi::Operation::Rack.new(d_op, env, app)
+      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
+    end
+
+    it "raises a MalformedOperationError if depends_on has elements which depend on current" do
+      d_op = op_params.dup.tap {|o| o["depends_on"] = [0] }
+      expect {
+        BatchApi::Operation::Rack.new(d_op, env, app)
+      }.to raise_exception(BatchApi::Errors::MalformedOperationError)
+    end
+
+    it "sets depends_on properly when it has an array of integers which are older" do
+      d_op = op_params.dup.tap {|o| o["depends_on"] = [0] }
+      op = BatchApi::Operation::Rack.new(d_op, env, app, 1)
+      expect(op.depends_on).to eq(d_op["depends_on"])
     end
   end
 

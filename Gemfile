@@ -27,6 +27,9 @@ group :development, :test do
   # for JRuby
   gem "jdbc-sqlite3", :platform => :jruby
 
+  #Not sure which version to use here. Let the App decide the liquid version.
+  gem "liquid"
+
   group :darwin do
     # OS X integration
     gem "ruby_gntp"

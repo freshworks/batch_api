@@ -4,24 +4,28 @@ module BatchApi
   # Public: an individual batch operation.
   module Operation
     class Rack
-      attr_accessor :method, :url, :params, :headers
+      attr_accessor :method, :url, :params, :headers, :depends_on
       attr_accessor :env, :app, :result, :options
 
       # Public: create a new Batch Operation given the specifications for a batch
       # operation (as defined above) and the request environment for the main
       # batch request.
-      def initialize(op, base_env, app)
+      def initialize(op, base_env, app, index = 0)
         @op = op
 
         @method = op["method"] || "get"
         @url = op["url"]
         @params = op["params"] || {}
         @headers = op["headers"] || {}
+        @depends_on = op["depends_on"] || []
         @options = op
 
         raise Errors::MalformedOperationError,
           "BatchAPI operation must include method (received #{@method.inspect}) " +
           "and url (received #{@url.inspect})" unless @method && @url
+        raise Errors::MalformedOperationError,
+          "depends_on must be an array of integers and must depend on previous requests" unless (@depends_on.is_a?(Array) &&
+            !@depends_on.detect{|d| !d.is_a?(Integer) || d >= index || d < 0})
 
         @app = app
         # deep_dup to avoid unwanted changes across requests

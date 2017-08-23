@@ -6,10 +6,11 @@ module BatchApi
     class Rails < Operation::Rack
       # Public: create a new Rails Operation.  It does all that Rack does
       # and also some additional Rails-specific processing.
-      def initialize(op, base_env, app)
-        super
-        @params = params_with_path_components
-      end
+      # def initialize(op, base_env, app)
+      #   super
+      #   @params = params_with_path_components
+      #   @params_with
+      # end
 
       # Internal: customize the request environment.  This is currently done
       # manually and feels clunky and brittle, but is mostly likely fine, though
@@ -17,8 +18,12 @@ module BatchApi
       def process_env
         # parameters
         super
-        @env["action_dispatch.request.parameters"] = @params
+        @env["action_dispatch.request.parameters"] = params_with_path_components
         @env["action_dispatch.request.request_parameters"] = @params
+        if (@method == "get")
+          @env['CONTENT_TYPE'] = nil
+          env["action_dispatch.request.content_type"] = nil
+        end
       end
 
       private
